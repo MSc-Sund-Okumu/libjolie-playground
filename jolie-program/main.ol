@@ -11,6 +11,7 @@ service Main {
     main {
         [hello(request)(response) {
             response = "hello"
+            response = "Jeg virker :O"
         }]
     }
 }
