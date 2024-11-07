@@ -5,10 +5,9 @@ import jolie.lang.parse.util.ParsingUtils;
 import jolie.Interpreter;
 import jolie.cli.CommandLineParser;
 
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URI;
+import java.nio.file.*;
 
 import jolie.lang.parse.SemanticVerifier;
 import jolie.lang.parse.SemanticVerifier.Configuration;
@@ -25,6 +24,15 @@ import org.json.*;
  */
 public class App {
 
+    private static boolean deleteDirectory(File directoryToBeDeleted) {
+        File[] allContents = directoryToBeDeleted.listFiles();
+        if (allContents != null) {
+            for (File file : allContents) {
+                deleteDirectory(file);
+            }
+        }
+        return directoryToBeDeleted.delete();
+    }
 
     public static void main(String[] args) {
         String mainFilePath = "file:///Users/99sun/Documents/GitHub/libjolie-playground/jolie-program/main.ol";
@@ -47,39 +55,35 @@ public class App {
                     mainFileReader.getEncoding(), includePaths, configuration.packagePaths(), classLoader,
                     configuration.constants(), semanticVerificationConfiguration, true);
 
-            ParsingContextVisitor parsingContextVisitor = new ParsingContextVisitor();
+            //Remove the files in the results directory
+            File results = new File("results");
+            deleteDirectory(results);
+            results.mkdir();
 
+            ParsingContextVisitor parsingContextVisitor = new ParsingContextVisitor();
             JSONObject visitorJSON = mainProgram.accept(parsingContextVisitor, mainProgram.context());
-            ParsingContext mainContext = mainProgram.context();
-            JSONObject contextObject = new JSONObject();
-            contextObject.put("parsingContext", mainContext);
-            System.out.println(contextObject);
+            BufferedWriter output = new BufferedWriter(new FileWriter("results/AST-jolie-program.json", true));
+            visitorJSON.write(output);
+            output.close();
+
+            //Copy template.md and generate report.md
+            Files.copy(Paths.get("template.md"), Paths.get("results/report.md"), StandardCopyOption.REPLACE_EXISTING);
+
+            parsingContextVisitor.getNodes()
+                    .forEach(node -> {
+                        boolean wrongColumn = parsingContextVisitor.getWrongColumn().contains(node);
+                        boolean wrongCode = parsingContextVisitor.getWrongCode().contains(node);
+                        String line = "|" + node + "|" + (wrongColumn ? ":x:" : ":white_check_mark:") + "|" + (wrongCode ? ":x:" : ":white_check_mark:") + "|" + "\n";
+                        try {
+                            Files.writeString(Paths.get("results/report.md"), line, StandardOpenOption.APPEND);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
 
             //JSONObject context2Object = new JSONObject();
             //context2Object.put("parsingContext", parsingContextToJSON(mainContext));
-            System.out.println(visitorJSON.toString(2));
-
-            /*SemanticVerifier semanticVerifier = ParsingUtils.parseProgramModule(
-                    mainFileInputStream, mainFileUri,
-                    mainFileReader.getEncoding(), includePaths, configuration.packagePaths(), classLoader,
-                    configuration.constants(), semanticVerificationConfiguration, true
-            );
-            */
-            //ProgramInspector inspector = ParsingUtils.createInspector(mainProgram);
-            
-            //ProgramBuilder programBuilder = new ProgramBuilder(mainProgram.context());
-            //ImportStatement importStatement = (ImportStatement)mainProgram.children().get(0);
-            System.out.println("UwU");
-            /* ServiceNode serviceNode = (ServiceNode)mainProgram.children().get(1);
-            //for (var child: serviceNode.program().children())
-            //    System.out.println(child.toString());
-            DefinitionNode definitionNode = (DefinitionNode)serviceNode.program().children().get(2);
-            NDChoiceStatement ndChoiceStatement = (NDChoiceStatement)definitionNode.body();
-            RequestResponseOperationStatement rrOperationStatement = (RequestResponseOperationStatement)ndChoiceStatement.children().get(0).key();
-            VariablePathNode variablePathNode = rrOperationStatement.inputVarPath();
-            
-            System.out.println(variablePathNode); */
-
+            System.out.println(parsingContextVisitor.getNodes().toString());
 
         } catch (Exception e) {
             e.printStackTrace();
