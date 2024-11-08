@@ -39,11 +39,9 @@ public class App {
 
     public static void main(String[] args) {
         Path mainFilePath = Paths.get("jolie-program/main.ol");
-        
-        //String mainFilePath = "file:///Users/99sun/Documents/GitHub/libjolie-playground/jolie-program/main.ol";
+
         String jolieHomePath = System.getenv("JOLIE_HOME");
         System.out.println(jolieHomePath);
-        //String programFolder = "file:///Users/99sun/Documents/GitHub/libjolie-playground/jolie-program";
         String[] includePaths = new String[] { jolieHomePath + "/include", mainFilePath.getParent().toUri().toString() };
         String[] cliArgs = new String[] {mainFilePath.toUri().toString()};
         
@@ -96,8 +94,6 @@ public class App {
                         }
                     });
 
-            //JSONObject context2Object = new JSONObject();
-            //context2Object.put("parsingContext", parsingContextToJSON(mainContext));
             System.out.println(parsingContextVisitor.getNodes().toString());
 
         } catch (Exception e) {
