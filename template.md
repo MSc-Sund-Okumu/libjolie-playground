@@ -6,5 +6,4 @@ Wrongcode :x: means that the ParsingContext has an empty list of code strings, :
 
 Note that these are very simple tests and the ParsingContext may still be wrong.
 
-| OLSyntaxNode | WrongColumn | WrongCode |
-|--------------|-------------|-----------|
+
