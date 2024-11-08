@@ -35,22 +35,28 @@ public class App {
     }
 
     public static void main(String[] args) {
-        String mainFilePath = "file:///Users/99sun/Documents/GitHub/libjolie-playground/jolie-program/main.ol";
+        Path mainFilePath = Paths.get("jolie-program/main.ol");
+        
+        //String mainFilePath = "file:///Users/99sun/Documents/GitHub/libjolie-playground/jolie-program/main.ol";
         String jolieHomePath = System.getenv("JOLIE_HOME");
-        String programFolder = "file:///Users/99sun/Documents/GitHub/libjolie-playground/jolie-program";
-        String[] includePaths = new String[] { jolieHomePath, programFolder };
-        String[] cliArgs = new String[] {mainFilePath};
+        System.out.println(jolieHomePath);
+        //String programFolder = "file:///Users/99sun/Documents/GitHub/libjolie-playground/jolie-program";
+        String[] includePaths = new String[] { jolieHomePath, mainFilePath.getParent().toUri().toString() };
+        String[] cliArgs = new String[] {mainFilePath.toUri().toString()};
         
         try (FileReader mainFileReader = new FileReader(
-            "/Users/99sun/Documents/GitHub/libjolie-playground/jolie-program/main.ol"
+            mainFilePath.toFile()
         )) {
             CommandLineParser cliParser = new CommandLineParser(cliArgs, App.class.getClassLoader());
+
             Interpreter.Configuration configuration = cliParser.getInterpreterConfiguration();
+
+            System.out.println("includePath = " + configuration.includePaths());
             SemanticVerifier.Configuration semanticVerificationConfiguration = new Configuration(
                 configuration.executionTarget());
-            URI mainFileUri = new URI(mainFilePath);
+            URI mainFileUri = mainFilePath.toUri();
             ClassLoader classLoader = configuration.jolieClassLoader();
-            InputStream mainFileInputStream = new FileInputStream("/Users/99sun/Documents/GitHub/libjolie-playground/jolie-program/main.ol");
+            InputStream mainFileInputStream = new FileInputStream(mainFilePath.toFile());
             Program mainProgram = ParsingUtils.parseProgram(mainFileInputStream, mainFileUri,
                     mainFileReader.getEncoding(), includePaths, configuration.packagePaths(), classLoader,
                     configuration.constants(), semanticVerificationConfiguration, true);
