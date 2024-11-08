@@ -9,14 +9,18 @@ Note that these are very simple tests and the ParsingContext may still be wrong.
 | OLSyntaxNode | WrongColumn | WrongCode |
 |--------------|-------------|-----------|
 |ServiceNode|:white_check_mark:|:white_check_mark:|
-|DefinitionNode|:x:|:white_check_mark:|
-|RequestResponseOperationDeclaration|:x:|:white_check_mark:|
 |Program|:x:|:x:|
-|TypeInlineDefinition|:x:|:x:|
+|OneWayOperationDeclaration|:white_check_mark:|:white_check_mark:|
+|OutputPortInfo|:white_check_mark:|:white_check_mark:|
 |InterfaceDefinition|:white_check_mark:|:white_check_mark:|
 |ExecutionInfo|:white_check_mark:|:white_check_mark:|
 |ImportStatement|:white_check_mark:|:white_check_mark:|
 |InputPortInfo|:white_check_mark:|:white_check_mark:|
 |VariablePathNode|:white_check_mark:|:white_check_mark:|
+|EmbeddedServiceNode|:x:|:white_check_mark:|
 |ConstantStringExpression|:white_check_mark:|:white_check_mark:|
+|DefinitionNode|:x:|:white_check_mark:|
+|RequestResponseOperationDeclaration|:x:|:white_check_mark:|
+|TypeDefinitionUndefined|:x:|:x:|
+|TypeInlineDefinition|:x:|:x:|
 |VariableExpressionNode|:white_check_mark:|:white_check_mark:|

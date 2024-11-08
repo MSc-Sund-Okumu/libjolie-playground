@@ -1,5 +1,6 @@
 package com.example;
 
+import jolie.js.JsUtils;
 import jolie.lang.parse.context.ParsingContext;
 import jolie.lang.parse.util.ParsingUtils;
 import jolie.Interpreter;
@@ -8,6 +9,7 @@ import jolie.cli.CommandLineParser;
 import java.io.*;
 import java.net.URI;
 import java.nio.file.*;
+import java.util.Optional;
 
 import jolie.lang.parse.SemanticVerifier;
 import jolie.lang.parse.SemanticVerifier.Configuration;
@@ -16,6 +18,7 @@ import jolie.lang.parse.ast.Program;
 import jolie.lang.parse.ast.ServiceNode;
 import jolie.lang.parse.ast.VariablePathNode.Type;
 import jolie.lang.parse.util.*;
+import jolie.runtime.Value;
 import org.json.*;
 
 /**
@@ -41,16 +44,22 @@ public class App {
         String jolieHomePath = System.getenv("JOLIE_HOME");
         System.out.println(jolieHomePath);
         //String programFolder = "file:///Users/99sun/Documents/GitHub/libjolie-playground/jolie-program";
-        String[] includePaths = new String[] { jolieHomePath, mainFilePath.getParent().toUri().toString() };
+        String[] includePaths = new String[] { jolieHomePath + "/include", mainFilePath.getParent().toUri().toString() };
         String[] cliArgs = new String[] {mainFilePath.toUri().toString()};
         
         try (FileReader mainFileReader = new FileReader(
             mainFilePath.toFile()
         )) {
-            CommandLineParser cliParser = new CommandLineParser(cliArgs, App.class.getClassLoader());
+            CommandLineParser cliParser = new CommandLineParser(cliArgs, App.class.getClassLoader(), false);
 
             Interpreter.Configuration configuration = cliParser.getInterpreterConfiguration();
-
+            Optional<Value> params = Optional.of( Value.create() );
+            if( configuration.parametersPath().isPresent() ) {
+                Path paramsPath = configuration.parametersPath().get();
+                try( Reader fileReader = Files.newBufferedReader( paramsPath ) ) {
+                    JsUtils.parseJsonIntoValue( fileReader, params.get(), true );
+                }
+            }
             System.out.println("includePath = " + configuration.includePaths());
             SemanticVerifier.Configuration semanticVerificationConfiguration = new Configuration(
                 configuration.executionTarget());

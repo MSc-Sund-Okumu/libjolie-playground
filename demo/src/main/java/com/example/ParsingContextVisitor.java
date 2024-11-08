@@ -464,8 +464,12 @@ public class ParsingContextVisitor implements OLVisitor<ParsingContext, JSONObje
     @Override
     public JSONObject visit(InputPortInfo n, ParsingContext ctx) {
         JSONObject obj = parsingContextToJSON(n.context(), n);
-        obj.put("location", n.location().accept(this, null));
-        obj.put("protocol", n.protocol().accept(this, null));
+        if (n.location() != null) {
+            obj.put("location", n.location().accept(this, null));
+        }
+        if (n.protocol() != null) {
+            obj.put("protocol", n.protocol().accept(this, null));
+        }
 
         //OutputPortInfo::operations not included because it's the same as the map only with less information
 
@@ -492,8 +496,12 @@ public class ParsingContextVisitor implements OLVisitor<ParsingContext, JSONObje
     @Override
     public JSONObject visit(OutputPortInfo n, ParsingContext ctx) {
         JSONObject obj = parsingContextToJSON(n.context(), n);
-        obj.put("location", n.location().accept(this, null));
-        obj.put("protocol", n.protocol().accept(this, null));
+        if (n.location() != null) {
+            obj.put("location", n.location().accept(this, null));
+        }
+        if (n.protocol() != null) {
+            obj.put("protocol", n.protocol().accept(this, null));
+        }
 
         //OutputPortInfo::operations not included because it's the same as the map only with less information
 
@@ -667,7 +675,9 @@ public class ParsingContextVisitor implements OLVisitor<ParsingContext, JSONObje
     @Override
     public JSONObject visit(EmbeddedServiceNode n, ParsingContext ctx) {
         JSONObject obj = parsingContextToJSON(n.context(), n);
-        obj.put("program", n.program().accept(this, null));
+        if (n.program() != null) {
+            obj.put("program", n.program().accept(this, null));
+        }
         return wrap(n, obj);
     }
 

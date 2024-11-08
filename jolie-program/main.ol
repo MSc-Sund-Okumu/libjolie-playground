@@ -1,6 +1,6 @@
 from .definitions import MainIface
-from console import Console
-
+//from console import Console
+include "console.iol"
 service Main {
     execution{ concurrent }
     inputPort MainPort {
@@ -8,7 +8,7 @@ service Main {
         protocol: http
         interfaces: MainIface
     }
-    embed Console as Console
+    //embed Console as Console
     main {
         [hello(request)(response) {
             println@Console("received request")()
