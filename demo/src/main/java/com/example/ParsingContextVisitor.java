@@ -122,6 +122,7 @@ public class ParsingContextVisitor implements OLVisitor<ParsingContext, JSONObje
     @Override
     public JSONObject visit(DefinitionNode n, ParsingContext ctx) {
         JSONObject obj = parsingContextToJSON(n.context(), n);
+        obj.put("body", n.body().accept(this, null));
         return wrap(n, obj);
     }
 
@@ -167,15 +168,18 @@ public class ParsingContextVisitor implements OLVisitor<ParsingContext, JSONObje
     @Override
     public JSONObject visit(OneWayOperationStatement n, ParsingContext ctx) {
         JSONObject obj = parsingContextToJSON(n.context(), n);
-        obj.put("inputVarPath", n.inputVarPath());
+        if (n.inputVarPath() != null)
+            obj.put("inputVarPath", n.inputVarPath());
         return wrap(n, obj);
     }
 
     @Override
     public JSONObject visit(RequestResponseOperationStatement n, ParsingContext ctx) {
         JSONObject obj = parsingContextToJSON(n.context(), n);
-        obj.put("inputVarPath", n.inputVarPath().accept(this, null));
-        obj.put("outputExpression", n.outputExpression().accept(this, null));
+        if (n.inputVarPath() != null)
+            obj.put("inputVarPath", n.inputVarPath().accept(this, null));
+        if (n.outputExpression() != null)
+            obj.put("outputExpression", n.outputExpression().accept(this, null));
         obj.put("process", n.process().accept(this, null));
         return wrap(n, obj);
     }
@@ -190,13 +194,16 @@ public class ParsingContextVisitor implements OLVisitor<ParsingContext, JSONObje
     @Override
     public JSONObject visit(SolicitResponseOperationStatement n, ParsingContext ctx) {
         JSONObject obj = parsingContextToJSON(n.context(), n);
-        obj.put("inputVarPath",n.inputVarPath().accept(this, null));
+        if (n.inputVarPath() != null)
+            obj.put("inputVarPath",n.inputVarPath().accept(this, null));
         obj.put("outputExpression",n.outputExpression().accept(this, null));
         JSONArray handlersFunctionArray = new JSONArray();
-        for (var pair : n.handlersFunction().pairs()) {
-            JSONObject pairObj = new JSONObject();
-            pairObj.put(pair.key(), pair.value().accept(this, null));
-            handlersFunctionArray.put(pairObj);
+        if (n.handlersFunction() != null) {
+            for (var pair : n.handlersFunction().pairs()) {
+                JSONObject pairObj = new JSONObject();
+                pairObj.put(pair.key(), pair.value().accept(this, null));
+                handlersFunctionArray.put(pairObj);
+            }
         }
         obj.put("handlersFunction", handlersFunctionArray);
         return wrap(n, obj);
@@ -425,7 +432,8 @@ public class ParsingContextVisitor implements OLVisitor<ParsingContext, JSONObje
     @Override
     public JSONObject visit(ThrowStatement n, ParsingContext ctx) {
         JSONObject obj = parsingContextToJSON(n.context(), n);
-        obj.put("expression", n.expression().accept(this, null));
+        if (n.expression() != null)
+            obj.put("expression", n.expression().accept(this, null));
         return wrap(n, obj);
     }
 
@@ -487,7 +495,8 @@ public class ParsingContextVisitor implements OLVisitor<ParsingContext, JSONObje
 
         JSONArray aggregationsListObj = new JSONArray();
         for (InputPortInfo.AggregationItemInfo child : n.aggregationList()) {
-            aggregationsListObj.put(child.interfaceExtender().accept(this, null));
+            if (child.interfaceExtender() != null)
+                aggregationsListObj.put(child.interfaceExtender().accept(this, null));
         }
 
         return wrap(n, obj);
@@ -897,8 +906,10 @@ public class ParsingContextVisitor implements OLVisitor<ParsingContext, JSONObje
     @Override
     public JSONObject visit(EmbedServiceNode n, ParsingContext ctx) {
         JSONObject obj = parsingContextToJSON(n.context(), n);
-        obj.put("passingParameter", n.passingParameter().accept(this, null));
-        obj.put("service", n.service().accept(this, null));
+        if (n.passingParameter() != null)
+            obj.put("passingParameter", n.passingParameter().accept(this, null));
+        if (n.service() != null)
+            obj.put("service", n.service().accept(this, null));
 
         return wrap(n, obj);
     }

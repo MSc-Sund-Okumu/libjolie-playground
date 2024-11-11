@@ -31,6 +31,7 @@ public class App {
         //Path mainFilePath = Paths.get("jolie-program/main.ol");
         Path mainFilePath = directory.resolve(Paths.get("main.ol"));
         String jolieHomePath = System.getenv("JOLIE_HOME");
+        String[] packagesPath = new String[] {System.getenv("JOLIE_HOME") + "/packages"};
         String[] includePaths = new String[]{jolieHomePath + "/include", mainFilePath.getParent().toUri().toString()};
         String[] cliArgs = new String[]{mainFilePath.toUri().toString()};
 
@@ -46,7 +47,7 @@ public class App {
             ClassLoader classLoader = configuration.jolieClassLoader();
             InputStream mainFileInputStream = new FileInputStream(mainFilePath.toFile());
             Program mainProgram = ParsingUtils.parseProgram(mainFileInputStream, mainFileUri,
-                    mainFileReader.getEncoding(), includePaths, configuration.packagePaths(), classLoader,
+                    mainFileReader.getEncoding(), includePaths, packagesPath, classLoader,
                     configuration.constants(), semanticVerificationConfiguration, true);
 
 
@@ -58,7 +59,6 @@ public class App {
 
             //Copy template.md and generate report.md
             Path reportMarkdownPath = Paths.get("results/report.md");
-            Files.copy(Paths.get("template.md"), reportMarkdownPath, StandardCopyOption.REPLACE_EXISTING);
 
             String folderDescription = "## Report for folder: " + directory.getFileName() + "\n\n";
             String tableHeader = folderDescription + """
@@ -103,6 +103,13 @@ public class App {
         File results = new File("results");
         deleteDirectory(results);
         results.mkdir();
+
+        Path reportMarkdownPath = Paths.get("results/report.md");
+        try {
+            Files.copy(Paths.get("template.md"), reportMarkdownPath, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         try {
             Files.walk(Paths.get("jolie-program"), 1)
